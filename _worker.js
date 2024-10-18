@@ -1816,7 +1816,7 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 	}
 
 	// 使用Set对象去重
-	const uniqueAddresses = [...new Set(addresses)];
+	let uniqueAddresses = [...new Set(addresses)];
 
 	// 使用 keywords 去除 url 中的关键词.
 	uniqueAddresses = uniqueAddresses.filter(address => !keywords.some(keyword => address.includes(encodeURIComponent(keyword))));
