@@ -1536,7 +1536,7 @@ https://github.com/cmliu/edgetunnel
 
 			// 过滤掉包含关键词的行
 			decodedContent = decodedContent.split('\n').filter(line => {
-				return !keywords.some(keyword => line.toLowerCase().includes(keyword));
+				return !keywords.some(keyword => line.includes(keyword) || line.includes(encodeURIComponent(keyword)));
 			}).join('\n');
 
 			// 重新编码（如果原来是Base64编码）
@@ -1827,11 +1827,9 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 	// 使用Set对象去重
 	let uniqueAddresses = [...new Set(addresses)];
 
-	console.log(uniqueAddresses, keywords);
-
 	// 使用 keywords 去除 url 中的关键词
 	uniqueAddresses = uniqueAddresses.filter(address => {
-		return !keywords.some(keyword => address.includes(keyword));
+		return !keywords.some(keyword => address.includes(keyword) || address.includes(encodeURIComponent(keyword)));
 	});
 
 	const responseBody = uniqueAddresses.map(address => {
