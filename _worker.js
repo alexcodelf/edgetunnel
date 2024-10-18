@@ -1818,8 +1818,10 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 	// 使用Set对象去重
 	let uniqueAddresses = [...new Set(addresses)];
 
+	console.log(uniqueAddresses, keywords);
+
 	// 使用 keywords 去除 url 中的关键词.
-	uniqueAddresses = uniqueAddresses.filter(address => !keywords.some(keyword => address.includes(encodeURIComponent(keyword))));
+	uniqueAddresses = uniqueAddresses.filter(address => !keywords.some(keyword => address.includes(keyword)));
 
 	const responseBody = uniqueAddresses.map(address => {
 		let port = "-1";
