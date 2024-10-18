@@ -112,6 +112,7 @@ export default {
 			socks5Address = socks5Address.split('//')[1] || socks5Address;
 			if (env.CFPORTS) httpsPorts = await ADD(env.CFPORTS);
 			sub = env.SUB || sub;
+			keywords = env.KEYWORDS.split('@') || keywords;
 			subconverter = env.SUBAPI || subconverter;
 			if( subconverter.includes("http://") ){
 				subconverter = subconverter.split("//")[1];
@@ -1817,7 +1818,8 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 	// 使用Set对象去重
 	const uniqueAddresses = [...new Set(addresses)];
 
-	console.log(uniqueAddresses);
+	// 使用 keywords 去除 url 中的关键词.
+	uniqueAddresses = uniqueAddresses.filter(address => !keywords.some(keyword => address.includes(encodeURIComponent(keyword))));
 
 	const responseBody = uniqueAddresses.map(address => {
 		let port = "-1";
