@@ -17,9 +17,7 @@ let subProtocol = 'https';
 // Example:  user:pass@host:port  or  host:port
 let socks5Address = '';
 
-let keywords = [
-	't.me'
-]
+let keywords = [];
 
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
@@ -112,7 +110,7 @@ export default {
 			socks5Address = socks5Address.split('//')[1] || socks5Address;
 			if (env.CFPORTS) httpsPorts = await ADD(env.CFPORTS);
 			sub = env.SUB || sub;
-			keywords = env.KEYWORDS.split('@') || keywords;
+			keywords = env.FILTER_KEYWORDS.split('@') || keywords;
 			subconverter = env.SUBAPI || subconverter;
 			if( subconverter.includes("http://") ){
 				subconverter = subconverter.split("//")[1];
@@ -1533,7 +1531,18 @@ https://github.com/cmliu/edgetunnel
 
 			if (_url.pathname == `/${fakeUserID}`) return content;
 
-			return revertFakeInfo(content, userID, hostName, isBase64);
+			// 解码内容（如果是Base64编码）
+			let decodedContent = isBase64 ? atob(content) : content;
+
+			// 过滤掉包含关键词的行
+			decodedContent = decodedContent.split('\n').filter(line => {
+				return !keywords.some(keyword => line.toLowerCase().includes(keyword));
+			}).join('\n');
+
+			// 重新编码（如果原来是Base64编码）
+			let filteredContent = isBase64 ? btoa(decodedContent) : decodedContent;
+
+			return revertFakeInfo(filteredContent, userID, hostName, isBase64);
 
 		} catch (error) {
 			console.error('Error fetching content:', error);
@@ -1820,8 +1829,10 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 
 	console.log(uniqueAddresses, keywords);
 
-	// 使用 keywords 去除 url 中的关键词.
-	uniqueAddresses = uniqueAddresses.filter(address => !keywords.some(keyword => address.includes(keyword)));
+	// 使用 keywords 去除 url 中的关键词
+	uniqueAddresses = uniqueAddresses.filter(address => {
+		return !keywords.some(keyword => address.includes(keyword));
+	});
 
 	const responseBody = uniqueAddresses.map(address => {
 		let port = "-1";
