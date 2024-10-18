@@ -17,6 +17,10 @@ let subProtocol = 'https';
 // Example:  user:pass@host:port  or  host:port
 let socks5Address = '';
 
+let keywords = [
+	't.me'
+]
+
 if (!isValidUUID(userID)) {
 	throw new Error('uuid is not valid');
 }
@@ -1812,6 +1816,8 @@ function subAddresses(host,UUID,noTLS,newAddressesapi,newAddressescsv,newAddress
 
 	// 使用Set对象去重
 	const uniqueAddresses = [...new Set(addresses)];
+
+	console.log(uniqueAddresses);
 
 	const responseBody = uniqueAddresses.map(address => {
 		let port = "-1";
