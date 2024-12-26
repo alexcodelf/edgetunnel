@@ -12,7 +12,7 @@ let socks5Address = '';
 let parsedSocks5Address = {};
 let enableSocks = false;
 
-let keywords = ''
+let keywords = 't.me,TG,维护'
 
 let fakeUserID;
 let fakeHostName;
@@ -1485,6 +1485,7 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, env
 			fakeHostName = `${fakeHostName}.xyz`
 		}
 		console.log(`虚假HOST: ${fakeHostName}`);
+		console.log(keywords);
 		let url = `${subProtocol}://${sub}/sub?host=${fakeHostName}&uuid=${fakeUserID + atob('JmVkZ2V0dW5uZWw9Y21saXUmcHJveHlpcD0=') + RproxyIP}&path=${encodeURIComponent(path)}`;
 		let isBase64 = true;
 
@@ -1769,6 +1770,7 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 		}).filter(link => {
 			// 在这里处理关键词过滤
 			const keywordsArray = keywords.split(',').map(k => k.trim());
+			console.log(keywordsArray);
 			// 如果不包含任何关键词就保留（返回true）
 			return !keywordsArray.some(keyword => link.includes(keyword));
 		}).join('\n');
@@ -1835,6 +1837,12 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 		const 维列斯Link = `${协议类型}://${UUID}@${address}:${port + atob('P2VuY3J5cHRpb249bm9uZSZzZWN1cml0eT10bHMmc25pPQ==') + 伪装域名}&fp=random&type=ws&host=${伪装域名}&path=${encodeURIComponent(最终路径)}#${encodeURIComponent(addressid + 节点备注)}`;
 
 		return 维列斯Link;
+	}).filter(link => {
+		// 在这里处理关键词过滤
+		const keywordsArray = keywords.split(',').map(k => k.trim());
+		console.log(keywordsArray);
+		// 如果不包含任何关键词就保留（返回true）
+		return !keywordsArray.some(keyword => link.includes(keyword));
 	}).join('\n');
 
 	let base64Response = responseBody; // 重新进行 Base64 编码
