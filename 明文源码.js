@@ -12,7 +12,7 @@ let socks5Address = '';
 let parsedSocks5Address = {};
 let enableSocks = false;
 
-let keywords = 't.me,TG,维护'
+let keywords = 't.me@TG@维护@频道'
 
 let fakeUserID;
 let fakeHostName;
@@ -1118,6 +1118,27 @@ function 恢复伪装信息(content, userID, hostName, isBase64) {
 	content = content.replace(new RegExp(fakeUserID, 'g'), userID)
 		.replace(new RegExp(fakeHostName, 'g'), hostName);
 
+	let lines;
+
+	if (content.includes('\r\n')) {
+		lines = content.split('\r\n');
+	} else {
+		lines = content.split('\n');
+	}
+
+	lines = lines.filter(line => {
+		// 在这里处理关键词过滤
+		const keywordsArray = keywords.split('@').map(k => k.trim());
+
+		// 如果不包含任何关键词就保留（返回true）
+		return !keywordsArray.some(keyword => {
+			// 包含 urlencode 的 keyword 不保留
+			return line.includes(keyword) || line.includes(encodeURIComponent(keyword));
+		});
+	});
+
+	content = lines.join('\n');
+
 	if (isBase64) content = btoa(content);  // 如果原内容是Base64编码的，处理完后再次编码
 
 	return content;
@@ -1545,26 +1566,6 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, env
 					}
 				});
 				content = await response.text();
-
-				let lines;
-				if (content.includes('\r\n')) {
-					lines = content.split('\r\n');
-				} else {
-					lines = content.split('\n');
-				}
-
-				lines = lines.filter(line => {
-					// 在这里处理关键词过滤
-					const keywordsArray = keywords.split(',').map(k => k.trim());
-					console.log(keywordsArray);
-					// 如果不包含任何关键词就保留（返回true）
-					return !keywordsArray.some(keyword => {
-						// 包含 urlencode 的 keyword 不保留
-						return !line.includes(keyword) || !line.includes(encodeURIComponent(keyword));
-					});
-				});
-
-				content = lines.join('\n');
 			}
 
 			if (_url.pathname == `/${fakeUserID}`) return content;
@@ -1738,10 +1739,10 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 
 		uniqueAddressesnotls = uniqueAddressesnotls.filter(address => {
 			// 在这里处理关键词过滤
-			const keywordsArray = keywords.split(',').map(k => k.trim());
+			const keywordsArray = keywords.split('@').map(k => k.trim());
 			console.log(keywordsArray);
 			// 如果不包含任何关键词就保留（返回true）
-			return !keywordsArray.some(keyword => address.includes(keyword));
+			return !keywordsArray.some(keyword => address.includes(keyword) || address.includes(encodeURIComponent(keyword)));
 		});
 
 		notlsresponseBody = uniqueAddressesnotls.map(address => {
@@ -1804,10 +1805,10 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 
 	uniqueAddresses = uniqueAddresses.filter(address => {
 		// 在这里处理关键词过滤
-		const keywordsArray = keywords.split(',').map(k => k.trim());
+		const keywordsArray = keywords.split('@').map(k => k.trim());
 		console.log(keywordsArray);
 		// 如果不包含任何关键词就保留（返回true）
-		return !keywordsArray.some(keyword => address.includes(keyword));
+		return !keywordsArray.some(keyword => address.includes(keyword) || address.includes(encodeURIComponent(keyword)));
 	});
 
 	const responseBody = uniqueAddresses.map(address => {
@@ -1869,10 +1870,10 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 		return 维列斯Link;
 	}).filter(link => {
 		// 在这里处理关键词过滤
-		const keywordsArray = keywords.split(',').map(k => k.trim());
-		console.log(keywordsArray);
+		const keywordsArray = keywords.split('@').map(k => k.trim());
+		console.log(1,keywordsArray);
 		// 如果不包含任何关键词就保留（返回true）
-		return !keywordsArray.some(keyword => link.includes(keyword));
+		return !keywordsArray.some(keyword => link.includes(keyword) || link.includes(encodeURIComponent(keyword)));
 	}).join('\n');
 
 	let base64Response = responseBody; // 重新进行 Base64 编码
