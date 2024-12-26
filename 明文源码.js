@@ -12,6 +12,8 @@ let socks5Address = '';
 let parsedSocks5Address = {};
 let enableSocks = false;
 
+let keywords = ''
+
 let fakeUserID;
 let fakeHostName;
 let noTLS = 'false';
@@ -85,6 +87,8 @@ export default {
 			fakeHostName = `${fakeUserIDMD5.slice(6, 9)}.${fakeUserIDMD5.slice(13, 19)}`;
 
 			proxyIP = env.PROXYIP || env.proxyip || proxyIP;
+			keywords = env.KEYWORDS || env.keywords || keywords;
+
 			proxyIPs = await 整理(proxyIP);
 			proxyIP = proxyIPs[Math.floor(Math.random() * proxyIPs.length)];
 
@@ -1762,6 +1766,11 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 
 			return 维列斯Link;
 
+		}).filter(link => {
+			// 在这里处理关键词过滤
+			const keywordsArray = keywords.split(',').map(k => k.trim());
+			// 如果不包含任何关键词就保留（返回true）
+			return !keywordsArray.some(keyword => link.includes(keyword));
 		}).join('\n');
 
 	}
