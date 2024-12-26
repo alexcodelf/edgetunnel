@@ -1545,6 +1545,26 @@ async function 生成配置信息(userID, hostName, sub, UA, RproxyIP, _url, env
 					}
 				});
 				content = await response.text();
+
+				let lines;
+				if (content.includes('\r\n')) {
+					lines = content.split('\r\n');
+				} else {
+					lines = content.split('\n');
+				}
+
+				lines = lines.filter(line => {
+					// 在这里处理关键词过滤
+					const keywordsArray = keywords.split(',').map(k => k.trim());
+					console.log(keywordsArray);
+					// 如果不包含任何关键词就保留（返回true）
+					return !keywordsArray.some(keyword => {
+						// 包含 urlencode 的 keyword 不保留
+						return !line.includes(keyword) || !line.includes(encodeURIComponent(keyword));
+					});
+				});
+
+				content = lines.join('\n');
 			}
 
 			if (_url.pathname == `/${fakeUserID}`) return content;
@@ -1714,7 +1734,15 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 	if (noTLS == 'true') {
 		addressesnotls = addressesnotls.concat(newAddressesnotlsapi);
 		addressesnotls = addressesnotls.concat(newAddressesnotlscsv);
-		const uniqueAddressesnotls = [...new Set(addressesnotls)];
+		let uniqueAddressesnotls = [...new Set(addressesnotls)];
+
+		uniqueAddressesnotls = uniqueAddressesnotls.filter(address => {
+			// 在这里处理关键词过滤
+			const keywordsArray = keywords.split(',').map(k => k.trim());
+			console.log(keywordsArray);
+			// 如果不包含任何关键词就保留（返回true）
+			return !keywordsArray.some(keyword => address.includes(keyword));
+		});
 
 		notlsresponseBody = uniqueAddressesnotls.map(address => {
 			let port = "-1";
@@ -1767,18 +1795,20 @@ function 生成本地订阅(host, UUID, noTLS, newAddressesapi, newAddressescsv,
 
 			return 维列斯Link;
 
-		}).filter(link => {
-			// 在这里处理关键词过滤
-			const keywordsArray = keywords.split(',').map(k => k.trim());
-			console.log(keywordsArray);
-			// 如果不包含任何关键词就保留（返回true）
-			return !keywordsArray.some(keyword => link.includes(keyword));
 		}).join('\n');
 
 	}
 
 	// 使用Set对象去重
-	const uniqueAddresses = [...new Set(addresses)];
+	let uniqueAddresses = [...new Set(addresses)];
+
+	uniqueAddresses = uniqueAddresses.filter(address => {
+		// 在这里处理关键词过滤
+		const keywordsArray = keywords.split(',').map(k => k.trim());
+		console.log(keywordsArray);
+		// 如果不包含任何关键词就保留（返回true）
+		return !keywordsArray.some(keyword => address.includes(keyword));
+	});
 
 	const responseBody = uniqueAddresses.map(address => {
 		let port = "-1";
